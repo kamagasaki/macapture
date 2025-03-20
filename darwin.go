@@ -3,19 +3,15 @@
 package screenshot
 
 /*
-#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > MAC_OS_VERSION_14_4
 #cgo CFLAGS: -x objective-c
-#cgo LDFLAGS: -framework CoreGraphics -framework CoreFoundation -framework ScreenCaptureKit
-#include <ScreenCaptureKit/ScreenCaptureKit.h>
-#else
 #cgo LDFLAGS: -framework CoreGraphics -framework CoreFoundation
-#endif
 #include <CoreGraphics/CoreGraphics.h>
 
-static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
-#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > MAC_OS_VERSION_14_4
-// Include ScreenCaptureKit and SCScreenshotManager related code
+#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > 120000
+// macOS versions that support ScreenCaptureKit (macOS 13 Ventura and newer)
+#cgo LDFLAGS: -framework ScreenCaptureKit
 #include <ScreenCaptureKit/ScreenCaptureKit.h>
+
 static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     __block CGImageRef result = nil;
@@ -56,8 +52,7 @@ static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, 
     return result;
 }
 #else
-// Fallback code for older macOS versions
-#include <CoreGraphics/CoreGraphics.h>
+// Older macOS versions (macOS 12 Monterey and older)
 static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
     CGImageRef img = CGDisplayCreateImageForRect(id, diIntersectDisplayLocal);
     if (!img) {
@@ -71,7 +66,6 @@ static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, 
     return copy;
 }
 #endif
-}
 */
 import "C"
 
