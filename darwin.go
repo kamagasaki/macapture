@@ -14,6 +14,9 @@ package screenshot
 
 static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
 #if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > MAC_OS_VERSION_14_4
+// Include ScreenCaptureKit and SCScreenshotManager related code
+#include <ScreenCaptureKit/ScreenCaptureKit.h>
+static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     __block CGImageRef result = nil;
     [SCShareableContent getShareableContentWithCompletionHandler:^(SCShareableContent* content, NSError* error) {
@@ -39,8 +42,8 @@ static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, 
             config.width = diIntersectDisplayLocal.size.width;
             config.height = diIntersectDisplayLocal.size.height;
             [SCScreenshotManager captureImageWithFilter:filter
-                                          configuration:config
-                                      completionHandler:^(CGImageRef img, NSError* error) {
+                                           configuration:config
+                                       completionHandler:^(CGImageRef img, NSError* error) {
                 if (!error) {
                     result = CGImageCreateCopyWithColorSpace(img, colorSpace);
                 }
@@ -51,7 +54,11 @@ static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, 
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     dispatch_release(semaphore);
     return result;
+}
 #else
+// Fallback code for older macOS versions
+#include <CoreGraphics/CoreGraphics.h>
+static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, CGColorSpaceRef colorSpace) {
     CGImageRef img = CGDisplayCreateImageForRect(id, diIntersectDisplayLocal);
     if (!img) {
         return nil;
@@ -62,6 +69,7 @@ static CGImageRef capture(CGDirectDisplayID id, CGRect diIntersectDisplayLocal, 
         return nil;
     }
     return copy;
+}
 #endif
 }
 */
