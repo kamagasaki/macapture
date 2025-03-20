@@ -1,4 +1,4 @@
-module github.com/kbinani/screenshot
+module github.com/kamagasaki/macapture
 
 go 1.21
 
